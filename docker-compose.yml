@@ -1,0 +1,83 @@
+version: "3.8"
+
+services:
+  # 1. API Gateway Edge Proxy
+  envoy:
+    image: envoyproxy/envoy:v1.27.0
+    ports:
+      - "8080:8080" # Main ingress port
+      - "9901:9901" # Admin port
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+    depends_on:
+      - gateway
+      - auth_service
+
+  # 2. Redis for Rate Limiting & Caching
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # 3. RabbitMQ for Task Queues
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672" # Management UI
+
+  # 4. Redpanda (Kafka compatible) for Event Streaming
+  redpanda:
+    image: redpandadata/redpanda:latest
+    command:
+      - redpanda
+      - start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --node-id 0
+      - --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+
+  # 5. Microservice: API Gateway (GraphQL, WebSockets, REST)
+  gateway:
+    build:
+      context: ./backend/gateway
+    environment:
+      - PORT=4000
+      - REDIS_URL=redis://redis:6379
+      - AUTH_GRPC_URL=auth_service:50051
+    ports:
+      - "4000:4000"
+    depends_on:
+      - redis
+
+  # 6. Microservice: Auth (JWT, RBAC, gRPC)
+  auth_service:
+    build:
+      context: ./backend/services/auth
+    environment:
+      - GRPC_PORT=50051
+      - JWT_SECRET=super_secret_enterprise_key
+    ports:
+      - "50051:50051"
+
+  # 7. Microservice: Core Business Logic
+  core_service:
+    build:
+      context: ./backend/services/core
+    environment:
+      - PORT=4001
+      - KAFKA_BROKERS=redpanda:29092
+      - RABBITMQ_URL=amqp://rabbitmq
+      - AUTH_GRPC_URL=auth_service:50051
+    ports:
+      - "4001:4001"
+    depends_on:
+      - redpanda
+      - rabbitmq
+      - auth_service

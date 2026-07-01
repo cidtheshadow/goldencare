@@ -1,42 +1,36 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+export type CareType = 
+  | "In-home personal care"
+  | "Nursing / skilled medical care"
+  | "Companionship and social engagement"
+  | "Physiotherapy / rehabilitation support"
+  | "Medical escort"
+  | "Adult day care"
+  | "Post-operative care";
 
-export type CareType = "Assisted Living" | "Memory Care" | "Independent Living";
+export interface Service {
+  id: string;
+  title: CareType;
+  description: string;
+  icon: any; // We will use lucide-react icons
+}
 
-export interface Community {
+export interface ConsultationRequest {
+  id: string;
+  patientName: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  preferredDate: string;
+  serviceNeeded: CareType | "Not sure yet";
+  city: string;
+  notes?: string;
+  status: "pending" | "contacted" | "scheduled";
+}
+
+export interface Testimonial {
   id: string;
   name: string;
-  careTypes: CareType[];
-  address: string;
   city: string;
+  content: string;
   rating: number;
-  reviewsCount: number;
-  startingPrice: number;
-  description: string;
-  imageUrl: string;
-  amenities: string[];
-  features: string[];
-  phone: string;
-}
-
-export interface Message {
-  id: string;
-  sender: 'user' | 'advisor';
-  text: string;
-  timestamp: string;
-}
-
-export interface TourBooking {
-  id: string;
-  communityId: string;
-  communityName: string;
-  date: string;
-  timeSlot: string;
-  userName: string;
-  userEmail: string;
-  userPhone: string;
-  notes?: string;
-  status: 'confirmed' | 'pending';
 }

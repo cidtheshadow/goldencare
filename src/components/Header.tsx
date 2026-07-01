@@ -1,43 +1,37 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { useState } from "react";
-import { Menu, X, Heart, ShieldCheck } from "lucide-react";
-import { CareType } from "../types";
+import { Menu, X, Heart, ShieldCheck, Phone } from "lucide-react";
 
 interface HeaderProps {
-  onSearchCategory: (category: CareType | 'all') => void;
+  onOpenConsultation: () => void;
   onOpenAdvisorChat: () => void;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  onOpenAuth: () => void;
 }
 
 export default function Header({
-  onSearchCategory,
+  onOpenConsultation,
   onOpenAdvisorChat,
-  activeTab,
-  setActiveTab
+  onOpenAuth
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { label: "Assisted Living", value: "Assisted Living" as CareType },
-    { label: "Memory Care", value: "Memory Care" as CareType },
-    { label: "Independent Living", value: "Independent Living" as CareType },
+    { label: "Services", id: "services" },
+    { label: "How It Works", id: "how-it-works" },
+    { label: "Trust & Safety", id: "vetting" },
+    { label: "FAQ", id: "faq" },
   ];
 
-  const handleNavClick = (val: CareType) => {
-    setActiveTab(val);
-    onSearchCategory(val);
+  const handleNavClick = (id: string) => {
     setMobileMenuOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleLogoClick = () => {
-    setActiveTab("home");
-    onSearchCategory("all");
     setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -68,62 +62,44 @@ export default function Header({
           <nav id="gc-desktop-nav" className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
               <button
-                key={item.value}
-                id={`nav-${item.value.replace(/\s+/g, '-').toLowerCase()}`}
-                onClick={() => handleNavClick(item.value)}
-                className={`text-sm font-medium tracking-wide transition-colors relative py-2 cursor-pointer ${
-                  activeTab === item.value
-                    ? "text-[#6D7A56] font-semibold"
-                    : "text-[#5C6450] hover:text-[#2D3325]"
-                }`}
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className="text-sm font-medium tracking-wide text-[#5C6450] hover:text-[#2D3325] transition-colors relative py-2 cursor-pointer"
               >
                 {item.label}
-                {activeTab === item.value && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#6D7A56] rounded-full" />
-                )}
               </button>
             ))}
-            <button
-              id="nav-resources"
-              onClick={onOpenAdvisorChat}
-              className="text-sm font-medium tracking-wide text-[#5C6450] hover:text-[#2D3325] cursor-pointer"
-            >
-              Resources
-            </button>
           </nav>
 
           {/* Right Action */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-5">
+            <div className="flex items-center gap-2 text-[#5A6844] font-semibold text-sm mr-2 border-r border-[#E7DFD4] pr-5">
+              <Phone className="w-4 h-4" />
+              <span>1800-123-4567</span>
+            </div>
             <button
-              id="btn-nav-advisor"
-              onClick={onOpenAdvisorChat}
-              className="text-xs font-mono font-medium tracking-wider text-[#6D7A56] border border-[#6D7A56]/30 px-3.5 py-2 rounded-full hover:bg-[#6D7A56]/5 transition-all cursor-pointer"
+              onClick={onOpenAuth}
+              className="text-sm font-medium tracking-wide text-[#5C6450] hover:text-[#2D3325] cursor-pointer"
             >
-              Care Advisor (AI)
+              Sign In
             </button>
             <button
-              id="btn-get-started"
-              onClick={() => {
-                setActiveTab("search");
-                onSearchCategory("all");
-              }}
-              className="bg-[#5A6844] text-[#FAF6EE] text-sm font-medium px-6 py-2.5 rounded-full hover:bg-[#485435] transition-all duration-300 shadow-sm hover:shadow cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+              onClick={onOpenConsultation}
+              className="bg-[#5A6844] text-[#FAF6EE] text-sm font-bold px-6 py-2.5 rounded-full hover:bg-[#485435] transition-all duration-300 shadow-sm hover:shadow cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
             >
-              Get Started
+              Free Consultation
             </button>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center gap-3">
             <button
-              id="btn-mobile-chat"
-              onClick={onOpenAdvisorChat}
+              onClick={onOpenConsultation}
               className="p-2 text-[#5C6450] bg-[#6D7A56]/10 rounded-full cursor-pointer"
             >
               <Heart className="w-5 h-5 text-[#6D7A56]" />
             </button>
             <button
-              id="btn-mobile-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 text-[#2D3325] hover:bg-[#E7DFD4]/20 rounded-lg transition-colors cursor-pointer"
             >
@@ -140,49 +116,36 @@ export default function Header({
           <div className="px-4 pt-2 pb-6 space-y-3">
             {navItems.map((item) => (
               <button
-                key={item.value}
-                id={`mobile-nav-${item.value.replace(/\s+/g, '-').toLowerCase()}`}
-                onClick={() => handleNavClick(item.value)}
-                className={`block w-full text-left px-4 py-3 rounded-xl text-base font-medium transition-all ${
-                  activeTab === item.value
-                    ? "bg-[#6D7A56]/10 text-[#6D7A56]"
-                    : "text-[#5C6450] hover:bg-[#E7DFD4]/20 hover:text-[#2D3325]"
-                }`}
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className="block w-full text-left px-4 py-3 rounded-xl text-base font-medium transition-all text-[#5C6450] hover:bg-[#E7DFD4]/20 hover:text-[#2D3325]"
               >
                 {item.label}
               </button>
             ))}
-            <button
-              id="mobile-nav-resources"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenAdvisorChat();
-              }}
-              className="block w-full text-left px-4 py-3 rounded-xl text-base font-medium text-[#5C6450] hover:bg-[#E7DFD4]/20 hover:text-[#2D3325]"
-            >
-              Resources & FAQs
-            </button>
+            
             <div className="pt-4 border-t border-[#E7DFD4]/50 flex flex-col gap-3 px-4">
+              <div className="flex items-center justify-center gap-2 text-[#5A6844] font-semibold text-sm py-2">
+                <Phone className="w-4 h-4" />
+                <span>Call us: 1800-123-4567</span>
+              </div>
               <button
-                id="mobile-btn-advisor"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  onOpenAdvisorChat();
+                  onOpenAuth();
                 }}
                 className="w-full text-center border border-[#6D7A56]/40 text-[#6D7A56] py-2.5 rounded-full text-sm font-medium bg-[#FAF6EE]"
               >
-                Chat with Care Advisor (AI)
+                Sign In to Family Portal
               </button>
               <button
-                id="mobile-btn-search"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  setActiveTab("search");
-                  onSearchCategory("all");
+                  onOpenConsultation();
                 }}
-                className="w-full text-center bg-[#5A6844] text-[#FAF6EE] py-3 rounded-full text-sm font-medium shadow-sm"
+                className="w-full text-center bg-[#5A6844] text-[#FAF6EE] py-3 rounded-full text-sm font-bold shadow-sm"
               >
-                Explore Communities
+                Book a Free Consultation
               </button>
             </div>
           </div>
