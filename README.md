@@ -6,8 +6,6 @@
 
 GoldenCare connects families with vetted, trained caregivers for aging parents — in-home personal care, nursing support, companionship, physiotherapy, and post-operative care coordination.
 
-Built and prototyped in [Google AI Studio](https://ai.studio/apps/a3cbfe77-5886-40fe-88dd-c55c2e07825a).
-
 ## Run locally
 
 **Prerequisites:** Node.js
